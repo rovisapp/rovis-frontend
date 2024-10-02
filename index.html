@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no'>
+        <meta name='description' content=''>
+        <title>Tripmaker</title>
+        <!-- Bootstrap CSS -->
+    <link href='./css/bootstrap.min.css' rel='stylesheet' crossorigin='anonymous' />
+    <link rel='stylesheet' href='./css/bootstrap-icons.css'>
+        <style>
+            .font-size-7 {
+                font-size: .75rem;
+            }
+            .font-size-7-5 {
+                font-size: .65rem;
+            }
+            .font-size-8 {
+                font-size: .5rem;
+            }
+    
+            .imgur-embed-iframe-pub {
+                max-height: 500px !important;
+            }
+            #usermap-output {
+            height: 500px;
+          }
+          .route-marker {
+            align-items: center;
+            background-color: #4a90e2;
+            border: solid 3px #2faaff;
+            border-radius: 50%;
+            display: flex;
+            height: 32px;
+            justify-content: center;
+            transition: width .1s, height .1s;
+            width: 32px;
+        }
+          .marker-icon {
+                background-position: center;
+                background-size: 22px 22px;
+                border-radius: 50%;
+                height: 22px;
+                left: 4px;
+                position: absolute;
+                text-align: center;
+                top: 3px;
+                transform: rotate(45deg);
+                width: 22px;
+            }
+            .marker {
+                height: 30px;
+                width: 30px;
+            }
+            .marker-content {
+                background: #c30b82;
+                border-radius: 50% 50% 50% 0;
+                height: 30px;
+                left: 50%;
+                margin: -15px 0 0 -15px;
+                position: absolute;
+                top: 50%;
+                transform: rotate(-45deg);
+                width: 30px;
+            }
+            .marker-content::before {
+                background: #ffffff;
+                border-radius: 50%;
+                content: "";
+                height: 24px;
+                margin: 3px 0 0 3px;
+                position: absolute;
+                width: 24px;
+            }
+           .tagbuilderlistholderdiv{
+            
+            margin-top: 0.5em;
+            margin-bottom:0.5em;
+            border-radius: 0.25em;
+            border: 1px solid var(--bs-primary);
+           }
+        </style>
+         <!-- Tomtom CSS -->
+        <link rel='stylesheet' type='text/css' href='./css/tomtom/maps.css'>
+        <link rel='stylesheet' type='text/css' href='./css/tomtom/index.css'/>
+        <!-- Bootstrap CSS -->
+        <link href='./css/bootstrap.min.css' rel='stylesheet' crossorigin='anonymous' />
+        <link rel='stylesheet' href='./css/bootstrap-icons.css'>
+        <style>
+             .tt-icon-size {
+                height: 18px !important;
+                width: 18px !important;
+            }
+            .icon-spacing-right {
+                margin-right: 17px;
+                margin-top: 22px;
+            }
+            .icon-spacing-left {
+                margin-left: 12px;
+                margin-top: 24px;
+            }
+            .route-input-container {
+                display: flex;
+            }
+            button.add-stop-btn {
+                margin-left: 30px;
+                margin-top: 24px;
+            }
+            .remove-btn {
+                background-color: transparent;
+                border: 0;
+            }
+            .remove-btn.hidden {
+                visibility: hidden;
+            }
+            .waypoint-marker {
+                align-items: center;
+                background-color: #4a90e2;
+                border: solid 3px #2faaff;
+                border-radius: 50%;
+                color: #ffffff;
+                display: flex;
+                font-size: 14px;
+                font-weight: bold;
+                height: 32px !important;
+                justify-content: center;
+                text-align: center;
+                width: 32px !important;
+                will-change: unset !important;
+            }
+            .waypoint-marker-small-red {
+                align-items: center;
+                background-color: #e2824a;
+                border: solid 1px #ff2f2f;
+                border-radius: 50%;
+                color: #ffffff;
+                display: flex;
+                font-size: 7px;
+                font-weight: bold;
+                height: 16px !important;
+                justify-content: center;
+                text-align: center;
+                width: 16px !important;
+                will-change: unset !important;
+            }
+            .waypoint-marker-small-blue-highlight {
+                border: solid 2px var(--bs-primary);
+                box-shadow:0px 0px 7px 5px var(--bs-primary)
+            }
+           .z-highlight {
+            box-shadow:0px 0px 7px 3px var(--bs-primary)
+           }
+            .tt-icon-number {
+                align-items: center;
+                background: #ffffff;
+                background-color: #8dc3eb;
+                border-radius: 50%;
+                color: #ffffff;
+                display: flex;
+                justify-content: center;
+                margin-right: 14px;
+                padding: 8px;
+            }
+            .tt-search-box-input {
+                width: calc(100% - 15px) !important;
+            }
+        </style>
+    </head>
+<body>
+<div class="container text-center"> 
+<div class="row justify-content-center p-2">
+  <place-search data-placeidx="0" stop-label="Start" show-add="true"></place-search>
+  <place-search data-placeidx="0" stop-label="End"></place-search>
+  <drive-options-start-end-choice></drive-options-start-end-choice>
+  <drive-options-text label-start="Drive upto" state-property="hrstodrivewithoutstopping" label-end="hours without stopping"></drive-options-text>
+  <drive-options-text label-start="Drive upto" state-property="hrstodriveperday" label-end="hours a day"></drive-options-text>
+  <drive-options-checkbox state-property="enablemealstops" label-end="Enable meal stops"></drive-options-checkbox>
+
+  <drive-options-text label-start="Eat every" state-property="mealintervalinhrs" label-end="hours"></drive-options-text>
+  <tag-builder-all-stops></tag-builder-all-stops>
+  <div class='input-group input-group-sm mb-2 d-grid'>
+  <button class='btn btn-sm btn-outline-secondary' id='template-userfilter-roadtrip-route-btn' type='button'>Route</button>
+  </div>
+  <stop-list-paginate></stop-list-paginate>
+  <stop-list></stop-list>
+  <map-display></map-display>
+</div>
+</div> 
+    
+  <script src='./js/bootstrap.bundle.min.js'></script>
+  <script type='text/javascript' src='./js/axios.min.js'></script>
+  <script src='./js/tomtom/maps-web.min.js'></script>
+  <script src='./js/tomtom/mobile-or-tablet.js'></script>
+
+  <script type="module" src="./js/store/init.js"></script>
+  <script type="module" src="./js/components/driveoptionstext.js"></script>
+  <script type="module" src="./js/components/driveoptionscheckbox.js"></script>
+  <script type="module" src="./js/components/driveoptionsstartenddatechoice.js"></script>
+  <script type="module" src="./js/components/placeoptions.js"></script>
+  <script type="module" src="./js/components/placesearch.js"></script>
+  <script type="module" src="./js/components/tagbuilder.js"></script>
+  <script type="module" src="./js/components/tagbuilderallstops.js"></script>
+  <script type="module" src="./js/components/tagbuilderlist.js"></script>
+  <script type="module" src="./js/components/stoplistpaginate.js"></script>
+  <script type="module" src="./js/components/stoplistall.js"></script>
+  <script type="module" src="./js/components/stoplistbyindex.js"></script>
+  <script type="module" src="./js/components/stoplist.js"></script>
+  <script type="module" src="./js/components/mapdisplay.js"></script>
+  <script type='module' src='./js/app.js'></script>
+ <script>
+    
+ </script>
+</body>
+</html>
