@@ -44,6 +44,10 @@ const initialState  = {
     fuelbreaktimeinminutes: 20,
     mealsearchtags : new Set()
   },
+  iswaitingfor: {
+    calculateroute : 0,
+    calculatestops: 0,
+  },
   regularcategories:{},
   restaurantcategories: {},
 };
