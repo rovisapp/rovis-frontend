@@ -53,7 +53,7 @@ export async function calculatestops() {
     console.log('locating stops')
     setWatingMessage();
     const { data, error } = await axios.post(
-      `http://localhost:3070/api/user/locatestoparray`,
+      `${window.config.APIDOMAIN}/api/user/locatestoparray`,
       {
         routehash: state.route.routehash,
         routedefaults: state.routedefaults,
