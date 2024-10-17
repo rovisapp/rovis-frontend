@@ -53,7 +53,7 @@ const initialState  = {
 };
 
 const config = {
-  APIDOMAIN: `http://${window.location.host}` 
+  APIDOMAIN: window.location.host=='localhost'?`http://${window.location.host}:3070`: `http://${window.location.host}`
 };
 
 window.config = config;
