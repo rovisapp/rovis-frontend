@@ -1,4 +1,4 @@
-// python3 -m http.server 80 --directory ./v2
+// python3 -m http.server 80
 import { placeSearch } from "./services/placesearch.js";
 import { store } from "./store/init.js";
 import { calculateroute } from "./services/calculateroute.js";
