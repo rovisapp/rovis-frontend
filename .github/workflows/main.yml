@@ -16,7 +16,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.DIGITALOCEAN_SSHKEY }}  # Your SSH private key stored as a secret
           DROPLET_IP: 167.99.235.171
         run: |
-          echo "$DIGITALOCEAN_SSHKEY" > id_rsa
+          echo "$SSH_PRIVATE_KEY" > id_rsa
           chmod 600 id_rsa
           ssh -i id_rsa -o StrictHostKeyChecking=no root@$DROPLET_IP "cd /var/www/rovis/frontend/ && git fetch origin && git checkout main && git pull origin main"
           rm id_rsa
