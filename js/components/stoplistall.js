@@ -53,9 +53,15 @@ class StopListAll extends HTMLElement {
       return;
     }
     console.log("rendering StopListAll");
-    let stoplisthtml = `<h6>You have ${
-      state.stops.length <= 0 ? "no" : state.stops.length
-    } stops </h6>`;
+    let stoplisthtml = '';
+    if (state.iswaitingfor.calculateroute==1 || state.iswaitingfor.calculatestops==1){
+      stoplisthtml = 'Calculating stops, please wait .. '
+    } else {
+      stoplisthtml = `<h6>You have ${
+        state.stops.length <= 0 ? "no" : state.stops.length
+      } stops </h6>`;
+    }
+    
 
     // Table header
     // Start Table Body

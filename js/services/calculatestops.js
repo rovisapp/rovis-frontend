@@ -1,6 +1,26 @@
 import { store } from "../store/init.js";
 import * as util from "../util.js";
 
+function setWatingMessage(){
+  store.dispatch({
+    type: "UPDATE_ISWAITING",
+    payload: {
+      value: 1,
+      property: 'calculatestops',
+    },
+  });
+}
+
+function unsetWatingMessage(){
+  store.dispatch({
+    type: "UPDATE_ISWAITING",
+    payload: {
+      value: 0,
+      property: 'calculatestops',
+    },
+  });
+}
+
 export async function calculatestops() {
   const state = store.getState();
   
@@ -31,6 +51,7 @@ export async function calculatestops() {
 
     //showLog('Locating Stops..');
     console.log('locating stops')
+    setWatingMessage();
     const { data, error } = await axios.post(
       `http://localhost:3070/api/user/locatestoparray`,
       {
@@ -65,7 +86,7 @@ export async function calculatestops() {
       }
     }
   });
-
+unsetWatingMessage();
     return data.stoparray;
   } catch (error) {
     console.error(JSON.stringify(error.stack));

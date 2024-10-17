@@ -124,7 +124,16 @@ export function reducerFunction(state, action) {
         stops: state.stops,
       };
 
+    case "UPDATE_ISWAITING":
+      state.iswaitingfor[action.payload.property] =
+        action.payload.value;
+      return {
+        iswaitingfor: state.iswaitingfor,
+      };
+
     default:
       return state;
   }
+
+
 }

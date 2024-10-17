@@ -79,6 +79,26 @@ function getWaypoints(){
   return detours;
 }
 
+function setWatingMessage(){
+  store.dispatch({
+    type: "UPDATE_ISWAITING",
+    payload: {
+      value: 1,
+      property: 'calculateroute',
+    },
+  });
+}
+
+function unsetWatingMessage(){
+  store.dispatch({
+    type: "UPDATE_ISWAITING",
+    payload: {
+      value: 0,
+      property: 'calculateroute',
+    },
+  });
+}
+
 
 export async function calculateroute(USERENTEREDSTOPSONLY=1) {
   const state = store.getState();
@@ -114,7 +134,8 @@ export async function calculateroute(USERENTEREDSTOPSONLY=1) {
 if (commaseparatedroutecoordinates.length<=1){
   return;
 }
-  console.log('calculating route')
+  console.log('calculating route');
+  setWatingMessage()
   
   let routecoordinates = commaseparatedroutecoordinates.join(":");
   let url = `http://localhost:3070/api/user/routing?routecoordinates=${routecoordinates}`;
@@ -145,6 +166,7 @@ if (commaseparatedroutecoordinates.length<=1){
       }
     }
   });
+  unsetWatingMessage();
   return ;
 }
 
