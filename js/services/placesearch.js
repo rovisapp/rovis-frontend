@@ -5,7 +5,7 @@ export async function placeSearch(locationStr) {
       }
       console.log(locationStr)
       const { data, error } = await axios.get(
-        `http://localhost:3070/api/user/search?q=${locationStr}`
+        `${window.config.APIDOMAIN}/api/user/search?q=${locationStr}`
       );
       
       return data;
