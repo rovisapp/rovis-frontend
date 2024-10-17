@@ -1,0 +1,22 @@
+name: Deploy frontend (main branch) to PROD
+
+on:
+  workflow_dispatch:  # This allows manual triggering of the workflow
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: SSH > Pull frontend from main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DIGITALOCEAN_SSHKEY }}  # Your SSH private key stored as a secret
+          DROPLET_IP: 167.99.235.171
+        run: |
+          echo "$DIGITALOCEAN_SSHKEY" > id_rsa
+          chmod 600 id_rsa
+          ssh -i id_rsa -o StrictHostKeyChecking=no user@$DROPLET_IP "cd /var/www/rovis/frontend/ && git fetch origin && git checkout main && git pull origin main"
+          rm id_rsa
