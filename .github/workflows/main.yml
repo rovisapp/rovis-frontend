@@ -18,5 +18,5 @@ jobs:
         run: |
           echo "$DIGITALOCEAN_SSHKEY" > id_rsa
           chmod 600 id_rsa
-          ssh -i id_rsa -o StrictHostKeyChecking=no user@$DROPLET_IP "cd /var/www/rovis/frontend/ && git fetch origin && git checkout main && git pull origin main"
+          ssh -i id_rsa -o StrictHostKeyChecking=no root@$DROPLET_IP "cd /var/www/rovis/frontend/ && git fetch origin && git checkout main && git pull origin main"
           rm id_rsa
