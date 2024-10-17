@@ -138,7 +138,8 @@ if (commaseparatedroutecoordinates.length<=1){
   setWatingMessage()
   
   let routecoordinates = commaseparatedroutecoordinates.join(":");
-  let url = `http://localhost:3070/api/user/routing?routecoordinates=${routecoordinates}`;
+  // let url = `http://localhost:3070/api/user/routing?routecoordinates=${routecoordinates}`;
+  let url = `${window.config.APIDOMAIN}/api/user/routing?routecoordinates=${routecoordinates}`;
   //Datetime must be in the form of 1996-12-19T16:39:57
   
   if (state.routedefaults.startenddatechoice == "Start at") {

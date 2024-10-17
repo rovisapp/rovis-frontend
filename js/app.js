@@ -54,7 +54,7 @@ const getrestaurantcategories = async function () {
   try {
     const state = store.getState();
     const { data, error } = await axios.get(
-      `http://localhost:3070/api/user/restaurantcategories`
+      `${window.config.APIDOMAIN}/api/user/restaurantcategories`
     );
 
     state.restaurantcategories = data;

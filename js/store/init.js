@@ -52,4 +52,10 @@ const initialState  = {
   restaurantcategories: {},
 };
 
+const config = {
+  APIDOMAIN: `http://${window.location.host}:3070` 
+};
+
+window.config = config;
+
 export const store = createStore(reducerFunction, initialState);
