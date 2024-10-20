@@ -12,6 +12,9 @@ function bindEvents(){
 }
 //apply defaults - Start
 async function applydefaults(){
+  if (window.config.ISPROD==0){
+  return;
+  }
     const state = store.getState();
     let placeIdarray = [];
     let startplacestring = "134 Hartsville-New Marlboro Road, New Marlborough, MA 01230";
@@ -20,6 +23,7 @@ async function applydefaults(){
         
         if (p.getAttribute("stop-label") == "Start") {
           p.querySelector("input").value = startplacestring;
+          p.setAttribute("data-searchstr", startplacestring);
       
           let startplaces = await placeSearch(startplacestring);
           state.places.set(startplaces[0].id,startplaces[0]);
@@ -32,6 +36,7 @@ async function applydefaults(){
         else if (p.getAttribute("stop-label") == "End") {
             console.log(p.querySelector("input"))
           p.querySelector("input").value = endplacestring;
+          p.setAttribute("data-searchstr", endplacestring);
       
           let endplaces = await placeSearch(endplacestring);
           
