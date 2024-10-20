@@ -131,9 +131,10 @@ radiuschangehandler = async(event)=>{
 
   getLoadMoreEle(thisStop, numericStopId){
     let numberofpoiOptions = this.getNumberofpoiOptions(thisStop);
+    
     return `<div>
     <button class="btn btn-sm btn-primary mb-1 stop-output-table-loadmorebtn" data-idx="${numericStopId}" >
-    ${(numberofpoiOptions ==0?'No results found. Expand search over next 5 miles':'Load More')}
+    ${(numberofpoiOptions ==0 || thisStop.poisearchexpandradius == 1?'No results found. Expand search over next 5 miles':'Load More')}
     </button></div>`;
   }
 
