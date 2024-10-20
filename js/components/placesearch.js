@@ -6,6 +6,7 @@ class PlaceSearch extends HTMLElement {
         super();
         this.unsubscribe = null;
         this.currentValue = null;
+        this.inputElement = null; // Store reference to the input element
     }
    
   
@@ -27,8 +28,11 @@ class PlaceSearch extends HTMLElement {
     
 
     handleChildEvent(event){
-        console.log(event.detail)
+        const state = store.getState();
+        console.log(event.detail);
         this.setAttribute('data-placeidx', event.detail.placeId);
+        this.currentValue = state.places.get(event.detail.placeId)?.address?.freeformAddress || '';
+        this.setAttribute('data-searchstr', this.currentValue);
         this.render();
         this.updatePlaceinState()
     }
@@ -81,25 +85,43 @@ class PlaceSearch extends HTMLElement {
                 }
             });
         })
-        
+        // Remove any existing place-options
+    const existingOptions = this.querySelector('place-options');
+    if (existingOptions) {
+        this.removeChild(existingOptions);
+    }
+
         let optionsComponent = document.createElement('place-options');
         optionsComponent.items = searchResults;
         this.appendChild(optionsComponent);
         
     }
+    async autocomplete(){
+       
+        if (this.currentValue.length>3){
+            this.searchPlace();
+        }
+    }
 
     bindEvents(){
-        this.querySelector(`input`).addEventListener('change', (event)=>this.currentValue=event.target.value);
+        
+        this.querySelector(`input`).addEventListener('input',  async(event)=>{
+            this.currentValue=event.target.value; 
+            this.setAttribute('data-searchstr', this.currentValue);
+             await this.autocomplete();
+             
+        });
         this.querySelector('.btn-searchplace').addEventListener('click', ()=>this.searchPlace());
         this.querySelector('.btn-addblankplace')?.addEventListener('click',()=>this.addBlankPlace());
         this.querySelector('.btn-removeplace')?.addEventListener('click',()=>this.removePlace());
         
     }
 
+
     render() {
         
         const state = store.getState();
-        this.currentValue = state.places.get(this.getAttribute('data-placeidx'))?.address?.freeformAddress || '';
+        this.currentValue = this.getAttribute('data-searchstr') || ''; 
         this.innerHTML =
          `
         <div class='input-group input-group-sm mb-2'>
@@ -111,10 +133,12 @@ class PlaceSearch extends HTMLElement {
         </div>
         `
         this.bindEvents()
+       
     }
 
     subscribe() {
-        this.unsubscribe = store.subscribe(() => this.render());
+        // this.unsubscribe = store.subscribe(() => this.render());
+        this.unsubscribe = store.subscribe(()=>{});
     }
 }
 
