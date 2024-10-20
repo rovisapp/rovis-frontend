@@ -12,7 +12,7 @@ function bindEvents(){
 }
 //apply defaults - Start
 async function applydefaults(){
-  if (window.config.ISPROD==0){
+  if (window.config.ISPROD==1){
   return;
   }
     const state = store.getState();
