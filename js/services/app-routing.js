@@ -1,21 +1,11 @@
 
-const TOMTOMAPIKEY = "G8fSR4QgSNY3RqkvCjcOmpwdiG0nD5k9";
+
 const MAX_ROUTING_INPUTS = 20;
 const METERTOMILE = 0.000621371;
 const MILETOMETER = 1609.34;
 
 
-    // let map = await tt.map({
-    //     key: TOMTOMAPIKEY,
-    //     style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=basic_main&poi=poi_dynamic',
-    //     container: 'usermap-output',
-    //     dragPan: !isMobileOrTablet()
-    // });
-    // const uid = function(){   return Date.now().toString(36) + Math.random().toString(36).substring(2, 12).padStart(12, 0)}
-    // map.addControl(new tt.FullscreenControl());
-    // map.addControl(new tt.NavigationControl());
- 
-
+  
 // new Foldable('#foldable', 'top-right');
 let routingInputs = []; //[{position:[long, lat], viewport:[topLeftPoint, btmRightPoint], excludefromMapBound:0}] 
 let markerInputs = []; //[{position:[long, lat], viewport:[topLeftPoint, btmRightPoint], excludefromMapBound:0, markerText:'0'}] 
@@ -34,8 +24,12 @@ class RoutingService {
         
      }
     async initMap() {
+        const response = await fetch(`${window.config.APIDOMAIN}/api/user/getsearchparam`);
+        const data = await response.json();
+        
+
         this.map = await tt.map({
-            key: TOMTOMAPIKEY,
+            key: data.searchparam,
              style: 'https://api.tomtom.com/style/1/style/22.2.1-*?map=basic_main&poi=poi_dynamic',
             container: 'usermap-output',
             dragPan: !isMobileOrTablet()
@@ -108,40 +102,7 @@ class RoutingService {
         if (locations.count < 2) {
             return;
         }
-        // // loadingHint.setMessage('Loading...');
-        // tt.services.calculateRoute({
-        //     key:TOMTOMAPIKEY,
-        //     traffic: false,
-        //     locations: locations.str
-        // })
-        //     .then(function(response) {
-        //         // loadingHint.hide();
-        //         this.clearMarkers();
-        //         var geojson = response.toGeoJson();
-        //         route = map.addLayer({
-        //             'id': 'route',
-        //             'type': 'line',
-        //             'source': {
-        //                 'type': 'geojson',
-        //                 'data': geojson
-        //             },
-        //             'paint': {
-        //                 'line-color': '#2faaff',
-        //                 'line-width': 6
-        //             }
-        //         }, this.findFirstBuildingLayerId());
-        //         var coordinates = geojson.features[0].geometry.coordinates;
-        //         if (geojson.features[0].properties.segmentSummary.length > 1) {
-        //             coordinates = [].concat.apply([], coordinates);
-        //         }
-        //         this.updateRoutesBounds(coordinates);
-        //         this.drawMarkers(locations.arr);
-        //     }.bind(this))
-        //     .catch(function(error) {
-        //         // loadingHint.hide();
-        //         // errorHint.setErrorMessage(error);
-        //     });
-        // this.clearMarkers();
+        
         route = this.map.addLayer({
             'id': routeId,
             'type': 'line',

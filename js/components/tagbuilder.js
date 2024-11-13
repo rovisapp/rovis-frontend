@@ -110,7 +110,7 @@ class TagBuilder extends HTMLElement {
   }
 
   bindEvents() {
-    this.querySelector(`input`).addEventListener("input", (event) => {
+    this.querySelector(`textarea`).addEventListener("input", (event) => {
         this.bindNewTagSearchEvent(event);
     });
     this.querySelectorAll(".tagclosebtn").forEach((tag) => {
@@ -186,8 +186,8 @@ class TagBuilder extends HTMLElement {
     <div class = "searchwithstops-div1" style="margin:0.5em 0 0.5em 0">
     <div class="searchwithstops-div2 justify-content-start" style="border: var(--bs-border-width) solid var(--bs-border-color); border-radius: 0.25em; padding:0.25em">
     ${badgesHTML}
-    <input class="searchwithstops-input" style="border:0px; outline:none; width:100%" placeholder="Type to search..."></input>
-    <button class='btn  btn-sm btn-outline-primary searchwithstops-updatebtn' style='width:20%; margin-bottom:0.5em'>Update</button>
+    <textarea class="searchwithstops-input" style="border:0px; outline:none; width:100%" placeholder="Enter preference for this stop. Eg, Indian, Chinese, Gas Stations \n etc"></textarea>
+    <!--<button class='btn  btn-sm btn-outline-primary searchwithstops-updatebtn' style='width:20%; margin-bottom:0.5em'>Update</button>-->
     </div>
     </div>
     <div class="searchwithstops-div3 d-flex text-primary justify-content-start font-size-7">${this.getFilterByText()}</div>`;
