@@ -78,8 +78,8 @@ radiuschangehandler = async(event)=>{
 
   bindEvents() {
     this.radioselecthandler();
-    this.querySelector(".stop-output-table-searchwithinmilesbtn").addEventListener("click", (event)=>this.radiuschangehandler(event));
-    this.querySelector(".stop-output-table-loadmorebtn").addEventListener("click", (event)=>this.loadmorehandler(event));
+    this.querySelector(".stop-output-table-searchwithinmilesbtn")?.addEventListener("click", (event)=>this.radiuschangehandler(event));
+    this.querySelector(".stop-output-table-loadmorebtn")?.addEventListener("click", (event)=>this.loadmorehandler(event));
 
   }
 
@@ -114,12 +114,16 @@ radiuschangehandler = async(event)=>{
   let stoplisthtml = (stopHasOptions && numberofpoiOptions >0)
     ? `<div class="text-primary justify-content-start font-size-7"> 
     Showing ${numberofpoiOptions} ${thisStop.type.join(' and ')} option(s) for stop ${numericStopId + 1} that are nearest to the route, within search radius of ${thisStop.poisearchradiusinmiles || 5 } miles.</fiv>`
-    : `<h6> No stop options found </h6>`;
+    : (
+      thisStop.type.includes('userdefined')? 
+      `<div class="text-primary justify-content-start font-size-7"> You requested a stop at ${thisStop?.address?.freeformAddress}.</div>` :
+    `<h6> No stop options found </h6>`);
 
   return stoplisthtml;
   }
 
   getSearchRadiusFilter(thisStop, numericStopId){
+    
     return `
     <div class="stop-output-searchwithinmilesinputgroup input-group input-group-sm mt-1 mb-1">
     <span class='input-group-text' style='width:50%'>Search Radius</span>
@@ -214,13 +218,15 @@ radiuschangehandler = async(event)=>{
     
     
     stoplisthtml += this.getStopHeader(thisStop, numericStopId);
-    stoplisthtml +=this.getSearchRadiusFilter(thisStop, numericStopId);
-    stoplisthtml +=this.getStopTagBuilder(numericStopId);
-    stoplisthtml +='<tag-builder-list></tag-builder-list>';
-    stoplisthtml += this.getStopListings(thisStop);
-    stoplisthtml += this.getLoadMoreEle(thisStop, numericStopId);
-    
+    if (!thisStop.type.includes('userdefined')){
+      stoplisthtml +=this.getSearchRadiusFilter(thisStop, numericStopId);
+      stoplisthtml +=this.getStopTagBuilder(numericStopId);
+      stoplisthtml +='<tag-builder-list></tag-builder-list>';
+      stoplisthtml += this.getStopListings(thisStop);
+      stoplisthtml += this.getLoadMoreEle(thisStop, numericStopId);
+    }
 
+    
     this.innerHTML = stoplisthtml;
 
     this.bindEvents();

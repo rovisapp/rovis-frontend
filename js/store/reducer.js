@@ -91,6 +91,8 @@ export function reducerFunction(state, action) {
         action.payload.value.poisearchexpandradius;
       state.stops[action.payload.property].poisearchradiusinmiles =
         action.payload.value.poisearchradiusinmiles;
+      state.stops[action.payload.property].nextPageToken = action.payload.value.nextPageToken;
+      state.stops[action.payload.property].locationRestriction = action.payload.value.locationRestriction;
 
       return {
         stops: state.stops,

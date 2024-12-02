@@ -1,5 +1,6 @@
 import { store } from "../store/init.js";
 import { RoutingService } from "../services/app-routing.js";
+import { GRoutingService } from "../services/g-app-routing.js";
 import { calculateroute } from "../services/calculateroute.js";
 class MapDisplay extends HTMLElement {
   constructor() {
@@ -177,7 +178,7 @@ class MapDisplay extends HTMLElement {
       });
   }
 
-  async renderMap() {
+  async renderMap(provider = 'YELP') {
     const state = store.getState();
     let numericStopId = Number(state.stopSelected);
     if (!Number.isInteger(numericStopId)) {
@@ -194,9 +195,10 @@ class MapDisplay extends HTMLElement {
       return;
     }
     console.log(`Executing renderMap() with focus-stop= ${this.focusOnStop}`);
-    let routingService = new RoutingService();
+    let routingService = provider === 'GOOGLE' ? new GRoutingService() : new RoutingService();
     let mapVar = await routingService.initMap();
-    mapVar.on("load", () => {
+    
+    const renderRoute = () => {
       routingService.addRoutingServiceInput(
         this.fetchAllpointsOnRoute(),
         [
@@ -223,10 +225,17 @@ class MapDisplay extends HTMLElement {
         "#2faaff"
       ); // routepointarrays or stoppointarrays accepts [{position:[long, lat], viewport:[topLeftPoint, btmRightPoint]}] as array of route points
       routingService.calculateRoute();
-    });
+    };
+
+    // TomTom map needs load event, Google Maps doesn't
+    if (provider === 'YELP' && mapVar.on) {
+      mapVar.on("load", renderRoute);
+    } else {
+      renderRoute();
+    }
   }
 
-  render() {
+  async render() {
     console.log("rendering MapDisplay");
     this.innerHTML = `
     <div class='col-md-8' >
@@ -241,13 +250,36 @@ class MapDisplay extends HTMLElement {
     
 </div>
         `;
-    this.renderMap();
+    
+    const response = await fetch(`${window.config.APIDOMAIN}/api/user/getplacesprovider`);
+    const data = await response.json();
+    
+    await this.renderMap(data.placesprovider);
     this.bindEvents();
   }
 
+  // subscribe() {
+  //   this.unsubscribe = store.subscribe(() => this.render());
+  // }
   subscribe() {
-    this.unsubscribe = store.subscribe(() => this.render());
-  }
+    // Only these actions will trigger map re-renders
+    const mapRelevantActions = [
+        'UPDATE_ROUTE',
+        'UPDATE_STOPS',
+        'RESET_STOPS', 
+        'UPDATED_SELECTEDSTOP',
+        'UPDATE_POISELECTIONFORSTOP',
+        'UPDATE_SELECTEDPLACES',
+        'UPDATE_SEARCHEDTAGINSTOP',
+        'DELETE_SEARCHEDTAGINSTOP',
+        'UPDATE_POISEARCHRESULTSINSTOP',
+        'UPDATE_SEARCHEDTAGSINALLSTOPS',
+        'DELETE_SEARCHEDTAGSINALLSTOPS',
+        'UPDATE_POISEARCHRADIUSFORSTOP'
+    ];
+
+    this.unsubscribe = store.subscribe(() => this.render(), mapRelevantActions);
+}
 }
 
 customElements.define("map-display", MapDisplay);

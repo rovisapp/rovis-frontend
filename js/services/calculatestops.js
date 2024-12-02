@@ -62,6 +62,8 @@ export async function calculatestops() {
 
       }
     );
+    // console.log('>>>>>>>>>>>>>>>>>>>>>')
+    // console.log(data)
      let stopIntervals = [];
     // convert poisearchtags from array to set
     let stoparray = data.stoparray;

@@ -1,3 +1,4 @@
+# Run npx ai-digest -o rovis-frontend-codebase.md --whitespace-removal --show-output-files
 # Logs
 logs
 *.log
@@ -131,5 +132,20 @@ dist
 
 .DS_Store
 
-
+.gitignore
+.aidigestignore
+codebase.md
 *-codebase.md
+
+js/tomtom/*
+css/tomtom/*
+css/fonts-bkp/*
+*.png
+*.svg
+*.jpg
+*.jpeg
+*.woff
+*.woff2
+*.map
+bootstrap.min.*
+bootstrap-icons.*
