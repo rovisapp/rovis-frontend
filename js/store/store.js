@@ -41,7 +41,7 @@ export class Store {
   dispatch(action) {
       const newState = this.reducer(this.state, action);
       this.state = { ...this.state, ...newState };
-      
+      console.log(this.state)
       // Notify listerers based on their action type filters If actionTypes filter was supplied by the subscriber.
       // Notify listeners for all action types, if no actionTypes filter was supplied by the subscriber.
       this.listeners.forEach(subscriber => {
