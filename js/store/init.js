@@ -52,6 +52,8 @@ const initialState  = {
   restaurantcategories: {},
 };
 
+const store = createStore(reducerFunction, initialState);
+
 const config = {
   APIDOMAIN: window.location.host=='localhost'?`http://${window.location.host}:3070`: `${window.location.protocol}//${window.location.host}`,
   ISPROD: window.location.host=='localhost'?0:1,
@@ -59,6 +61,8 @@ const config = {
 };
 
 window.config = config;
+
+
 
 //init google maps
   const response = await fetch(`${window.config.APIDOMAIN}/api/user/getgsearchparam`);
@@ -70,4 +74,5 @@ window.config = config;
   });
 
 
-export const store = createStore(reducerFunction, initialState);
+// Export initialized store
+export { store };
