@@ -7,6 +7,14 @@ class PlaceSearch extends HTMLElement {
         this.unsubscribe = null;
         this.currentValue = null;
         this.inputElement = null; // Store reference to the input element
+
+        // Create debounced search function with 500ms delay
+        // debouncing to wait for the user to stop typing before making API calls.
+        this.debouncedSearch = this.debounce(async (value) => {
+            if (value && value.length > 3) {
+                await this.searchPlace();
+            }
+        }, 500);
     }
    
   
@@ -26,6 +34,19 @@ class PlaceSearch extends HTMLElement {
         }
     }
     
+    debounce(func, wait) {
+        let timeout;
+        
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+    
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
     handleChildEvent(event){
         const state = store.getState();
@@ -96,19 +117,22 @@ class PlaceSearch extends HTMLElement {
         this.appendChild(optionsComponent);
         
     }
-    async autocomplete(){
+    // async autocomplete(){
        
-        if (this.currentValue.length>3){
-            this.searchPlace();
-        }
-    }
+    //     if (this.currentValue.length>3){
+    //         this.searchPlace();
+    //     }
+    // }
 
     bindEvents(){
         
         this.querySelector(`input`).addEventListener('input',  async(event)=>{
             this.currentValue=event.target.value; 
             this.setAttribute('data-searchstr', this.currentValue);
-             await this.autocomplete();
+            
+            //  await this.autocomplete();
+            // Use debounced search instead of direct search
+            this.debouncedSearch(this.currentValue);
              
         });
         this.querySelector('.btn-searchplace').addEventListener('click', ()=>this.searchPlace());
