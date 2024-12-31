@@ -228,7 +228,7 @@ class MapDisplay extends HTMLElement {
     };
 
     // TomTom map needs load event, Google Maps doesn't
-    if (provider === 'YELP' && mapVar.on) {
+    if (provider === 'YELP' || provider === 'HERE' && mapVar.on) {
       mapVar.on("load", renderRoute);
     } else {
       renderRoute();

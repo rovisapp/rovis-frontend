@@ -185,6 +185,7 @@ class RoutingService {
         this.map.fitBounds(bounds, { duration: 0, padding: 100 });
     }
     findFirstBuildingLayerId() {
+       
         var layers = this.map.getStyle().layers;
         for (var index in layers) {
             if (layers[index].type === 'fill-extrusion') {

@@ -151,6 +151,7 @@ radiuschangehandler = async(event)=>{
           thisStop.poiselected[0] == idx && thisStop.poiselected[1] == idx1
             ? "checked"
             : "";
+            const abbreviateUrl = (url, maxLength = 50) => url?.length > maxLength ? url.substring(0, maxLength - 3) + '...' : url;    
         stoplisthtml += `
           <tr>
           <td width="10%">
@@ -172,11 +173,11 @@ radiuschangehandler = async(event)=>{
               },
               ""
             )}</div>
-           <span class="font-size-7">  ${
-             eachpoi.rating || "0"
-           }&nbsp;<i class="bi bi-star-fill"></i> (${
-          eachpoi.review_count || "0"
-        }) on <a href="${eachpoi.url}" target="_blank" >Yelp</a></span>
+           <span class="font-size-7">  
+           ${eachpoi.rating ? `${eachpoi.rating}&nbsp;<i class="bi bi-star-fill"></i>` : ''}
+           ${eachpoi.review_count ? `(${eachpoi.review_count})` : ''}
+          ${eachpoi.url ? ` <a href="${eachpoi.url}" target="_blank">${abbreviateUrl(eachpoi.url)}</a>` : ''}
+        </span>
             </div>
           </td>
           <td style="text-align:right">

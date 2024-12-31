@@ -170,6 +170,7 @@ class StopListAll extends HTMLElement {
         ) {
           let selectedPoiForThisStop =
             selectedPoiOffsetForThisStop[eachStop.poiselected[1]];
+            const abbreviateUrl = (url, maxLength = 50) => url?.length > maxLength ? url.substring(0, maxLength - 3) + '...' : url;    
 
           stoplisthtml += `
           <tr>
@@ -191,13 +192,13 @@ class StopListAll extends HTMLElement {
               },
               ""
             )}</div>
-           <span class="font-size-7">  ${
-             selectedPoiForThisStop.rating || "0"
-           }&nbsp;<i class="bi bi-star-fill"></i> (${
-            selectedPoiForThisStop.review_count || "0"
-          }) on <a href="${
-            selectedPoiForThisStop.url
-          }" target="_blank" >Yelp</a></span>
+           <span class="font-size-7"> 
+           ${selectedPoiForThisStop.rating ? `${selectedPoiForThisStop.rating}&nbsp;<i class="bi bi-star-fill"></i>` : ''}
+           ${selectedPoiForThisStop.review_count ? `(${selectedPoiForThisStop.review_count})` : ''}
+           </span>
+           <span class="font-size-7"> 
+          ${selectedPoiForThisStop.url ? ` <a href="${selectedPoiForThisStop.url}" target="_blank">${abbreviateUrl(selectedPoiForThisStop.url)}</a>` : ''}
+          </span>
           <div class="font-size-7-5 mt-2">
            ${arriveDate != "" ? "Arrive: " + arriveDate : ""} </div> 
           <div class="font-size-7-5">
