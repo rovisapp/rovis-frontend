@@ -58,7 +58,7 @@ class MapDisplay extends HTMLElement {
       
       this.boundsChangeTimeout = setTimeout(async () => {
         console.log('Calling weather api:', this.bounds);
-        await fetchWeather();
+        await this.fetchWeather();
       }, 3000);
     }
   }
