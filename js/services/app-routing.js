@@ -63,6 +63,10 @@ class RoutingService {
     getState() {
         return state;
     }
+    getBounds(){
+         let bounds = new tt.LngLatBounds();
+         return bounds;
+    }
     removeLayers(varRouteLayersToRemove = []) {
         varRouteLayersToRemove.forEach(function (rId, index) {
             if (this.map.getLayer(rId)) {

@@ -7,6 +7,60 @@ class MapDisplay extends HTMLElement {
     super();
     this.unsubscribe = null;
     this.focusOnStop = -1;
+    this.bounds = {};
+    this.boundsChangeTimeout = null;
+    this.lastBoundsString = '';
+  }
+
+  updateBounds(bounds, provider) {
+    if (!bounds) return;
+    
+    let sw, ne;
+    let sw_lat, sw_lon, ne_lat, ne_lon;
+    
+    if (provider === 'GOOGLE') {
+      sw = bounds.getSouthWest();
+      sw_lat= sw.lat();
+      sw_lon=sw.lng();
+      ne = bounds.getNorthEast();
+      ne_lat = ne.lat(); 
+      ne_lon = ne.lng();
+    } else { // TomTom or HERE
+      sw = bounds.getSouthWest();
+      sw_lat= sw.lat;
+      sw_lon=sw.lng;
+      ne = bounds.getNorthEast(); 
+      ne_lat = ne.lat; 
+      ne_lon = ne.lng;
+      
+    }
+    
+    this.bounds = {
+      rectangle: {
+        low: {
+          latitude: sw_lat,
+          longitude: sw_lon
+        },
+        high: {
+          latitude: ne_lat, 
+          longitude: ne_lon
+        }
+      }
+    };
+    console.log('Map bounds:', this.bounds);
+    const newBoundsString = JSON.stringify(this.bounds);
+    if (newBoundsString !== this.lastBoundsString) {
+      this.lastBoundsString = newBoundsString;
+      
+      if (this.boundsChangeTimeout) {
+        clearTimeout(this.boundsChangeTimeout);
+      }
+      
+      this.boundsChangeTimeout = setTimeout(async () => {
+        console.log('Calling weather api:', this.bounds);
+        await fetchWeather();
+      }, 3000);
+    }
   }
 
   connectedCallback() {
@@ -18,6 +72,33 @@ class MapDisplay extends HTMLElement {
     if (this.unsubscribe) {
       this.unsubscribe();
     }
+    if (this.boundsChangeTimeout) {
+      clearTimeout(this.boundsChangeTimeout);
+    }
+  }
+
+  async fetchWeather(){
+    console.log('Fetching weather data for bounds:', this.bounds);
+  try {
+    const response = await fetch(
+      `${window.config.APIDOMAIN}/api/user/weather?` + 
+      `low_lat=${this.bounds.rectangle.low.latitude}&` +
+      `low_lon=${this.bounds.rectangle.low.longitude}&` +
+      `high_lat=${this.bounds.rectangle.high.latitude}&` +
+      `high_lon=${this.bounds.rectangle.high.longitude}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const weatherData = await response.json();
+    console.log('Weather data:', weatherData);
+    // Process weather data here
+    
+  } catch (error) {
+    console.error('Failed to fetch weather data:', error);
+  }
   }
 
   fetchAllpointsOnRoute() {
@@ -197,6 +278,21 @@ class MapDisplay extends HTMLElement {
     console.log(`Executing renderMap() with focus-stop= ${this.focusOnStop}`);
     let routingService = provider === 'GOOGLE' ? new GRoutingService() : new RoutingService();
     let mapVar = await routingService.initMap();
+
+    // Add bounds listeners based on provider
+  if (provider === 'GOOGLE') {
+    mapVar.addListener('bounds_changed', () => {
+      this.updateBounds(mapVar.getBounds(), 'GOOGLE');
+    });
+  } else if (provider === 'YELP' || provider === 'HERE') {
+    mapVar.on('dragend', () => {
+      this.updateBounds(mapVar.getBounds(), provider);
+    });
+    mapVar.on('resize', () => {
+      this.updateBounds(mapVar.getBounds(), provider);
+    });
+    
+  }
     
     const renderRoute = () => {
       routingService.addRoutingServiceInput(
@@ -229,9 +325,18 @@ class MapDisplay extends HTMLElement {
 
     // TomTom map needs load event, Google Maps doesn't
     if (provider === 'YELP' || provider === 'HERE' && mapVar.on) {
-      mapVar.on("load", renderRoute);
-    } else {
+      mapVar.on("load", ()=>{
+        renderRoute();
+        // Initial bounds
+      this.updateBounds(mapVar.getBounds(), provider);
+      });
+      
+    } else { // provider==GOOGLE
       renderRoute();
+      // Initial bounds for Google
+    if (provider === 'GOOGLE') {
+      this.updateBounds(mapVar.getBounds(), 'GOOGLE');
+    }
     }
   }
 
