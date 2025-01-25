@@ -285,7 +285,7 @@ class MapDisplay extends HTMLElement {
       this.updateBounds(mapVar.getBounds(), 'GOOGLE');
     });
   } else if (provider === 'YELP' || provider === 'HERE') {
-    mapVar.on('dragend', () => {
+    mapVar.on('moveend', () => {
       this.updateBounds(mapVar.getBounds(), provider);
     });
     mapVar.on('resize', () => {
