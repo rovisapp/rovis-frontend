@@ -367,6 +367,186 @@ class RoutingService {
             this.map.fitBounds(bounds, { duration: 0, padding: 100 });
         }
     }
+
+    // Add this method to the RoutingService class
+
+    addWeatherOverlay(weatherData) {
+        if (!weatherData || !Array.isArray(weatherData)) {
+            return;
+        }
+
+        // Remove existing weather layers
+        if (this.map.getLayer('weather-overlay')) {
+            this.map.removeLayer('weather-overlay');
+        }
+        if (this.map.getSource('weather-overlay')) {
+            this.map.removeSource('weather-overlay');
+        }
+
+        // Create features array for GeoJSON
+        const features = weatherData.map(point => {
+            const lat = point.coordinates.latitude;
+            const lon = point.coordinates.longitude;
+            const severity = point.forecastHours[3]?.assessment?.overall?.severity || 'Optimal';
+
+            // Create polygon coordinates for the grid cell
+            const coordinates = [
+                [lon, lat],  // southwest
+                [lon + 0.25, lat],  // southeast
+                [lon + 0.25, lat + 0.25],  // northeast
+                [lon, lat + 0.25],  // northwest
+                [lon, lat]  // close polygon
+            ];
+           
+            // console.log(`printing polygon ${severity}`);
+            // console.log(coordinates);
+            return {
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [coordinates]
+                },
+                properties: {
+                    severity: severity,
+                    conditions: point.forecastHours[3]?.assessment?.conditions || {},
+                    overallSeverity: point.forecastHours[3]?.assessment?.overall?.severity || 'Unknown',
+                  
+                    parameters: point.forecastHours[3]?.parameters || {}
+                }
+            };
+        });
+
+        // Add source and layer to map
+        this.map.addSource('weather-overlay', {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: features
+            }
+        });
+
+        this.map.addLayer({
+            id: 'weather-overlay',
+            type: 'fill',
+            source: 'weather-overlay',
+            paint: {
+                'fill-antialias': false,
+                //'fill-opacity': 0.5,
+                'fill-color': [
+                    'match',
+                    ['get', 'severity'],
+                    'Optimal', 'rgba(0, 255, 0, 0.5)',    // green with 0.2 opacity
+                    'Moderate', 'rgba(255, 255, 0, 0.4)', // yellow with 0.2 opacity
+                    'Difficult', 'rgba(255, 165, 0, 0.7)', // orange with 0.2 opacity
+                    'Severe', 'rgba(255, 0, 0, 0.5)',     // red with 0.2 opacity
+                    'rgba(0, 0, 0, 0)'  // default color
+                ],
+                'fill-outline-color': [
+                    'match',
+                    ['get', 'severity'],
+                    'Optimal', 'rgba(0, 255, 0, 0.5)',
+                    'Moderate', 'rgba(255, 255, 0, 0.4)',
+                    'Difficult', 'rgba(255, 165, 0, 0.7)',
+                    'Severe', 'rgba(255, 0, 0, 0.5)',
+                    'rgba(0, 0, 0, 0)'
+                ]
+            }
+        }, this.findFirstBuildingLayerId());
+        // Add click event handler
+        this.map.on('click', 'weather-overlay', (e) => {
+            if (!e.features.length) return;
+
+            const feature = e.features[0];
+            const props = feature.properties;
+
+            // Format conditions table
+            let conditionsHtml = '<table class="table table-sm mb-2">';
+            if (props.conditions) {
+                const conditions = typeof props.conditions === 'string' ? 
+                    JSON.parse(props.conditions) : props.conditions;
+                Object.entries(conditions).forEach(([condition, data]) => {
+                    conditionsHtml += `
+                        <tr>
+                            <td>${condition}</td>
+                            <td>${data.severity}</td>
+                        </tr>
+                    `;
+                });
+            }
+            conditionsHtml += '</table>';
+
+            // Format parameters table
+            let parametersHtml = '<table class="table table-sm mb-2">';
+            if (props.parameters) {
+                const parameters = typeof props.parameters === 'string' ? 
+                    JSON.parse(props.parameters) : props.parameters;
+                Object.entries(parameters).forEach(([param, value]) => {
+                    parametersHtml += `
+                        <tr>
+                            <td>${param}</td>
+                            <td>${value}</td>
+                        </tr>
+                    `;
+                });
+            }
+            parametersHtml += '</table>';
+
+            
+
+            // Create popup content with scrollable sections
+            const popupContent = `
+                <div class="weather-popup" style="max-height: 300px; overflow-y: auto;">
+                    <div class="p-2">
+                        <h6 class="mb-2">Weather Summary</h6>
+                        <div class="mb-3">
+                            <strong>Overall Severity:</strong> ${props.overallSeverity}<br>
+                            
+                        </div>
+                        <div class="mb-3">
+                            <h6>Detailed Conditions</h6>
+                            <div class="table-responsive">
+                                ${conditionsHtml}
+                            </div>
+                        </div>
+                        <div>
+                            <h6>Weather Parameters</h6>
+                            <div class="table-responsive">
+                                ${parametersHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Create and display popup
+            new tt.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(popupContent)
+                .addTo(this.map);
+
+            // Change cursor to pointer when hovering over weather polygons
+            this.map.on('mouseenter', 'weather-overlay', () => {
+                this.map.getCanvas().style.cursor = 'pointer';
+            });
+
+            this.map.on('mouseleave', 'weather-overlay', () => {
+                this.map.getCanvas().style.cursor = '';
+            });
+        
+    });
+
+    // Change cursor to pointer when hovering over weather polygons
+    this.map.on('mouseenter', 'weather-overlay', () => {
+        this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    this.map.on('mouseleave', 'weather-overlay', () => {
+        this.map.getCanvas().style.cursor = '';
+    });
+
+
+
+    }
 }
 
 

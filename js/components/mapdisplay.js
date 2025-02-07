@@ -10,6 +10,8 @@ class MapDisplay extends HTMLElement {
     this.bounds = {};
     this.boundsChangeTimeout = null;
     this.lastBoundsString = '';
+    this.weatherData = {};
+    this.routingService = null;
   }
 
   updateBounds(bounds, provider) {
@@ -58,7 +60,8 @@ class MapDisplay extends HTMLElement {
       
       this.boundsChangeTimeout = setTimeout(async () => {
         console.log('Calling weather api:', this.bounds);
-        await this.fetchWeather();
+        this.weatherData = await this.fetchWeather();
+        await this.updateWeatherOverlay();
       }, 3000);
     }
   }
@@ -77,29 +80,96 @@ class MapDisplay extends HTMLElement {
     }
   }
 
-  async fetchWeather(){
-    console.log('Fetching weather data for bounds:', this.bounds);
-  try {
-    const response = await fetch(
-      `${window.config.APIDOMAIN}/api/user/weather?` + 
-      `low_lat=${this.bounds.rectangle.low.latitude}&` +
-      `low_lon=${this.bounds.rectangle.low.longitude}&` +
-      `high_lat=${this.bounds.rectangle.high.latitude}&` +
-      `high_lon=${this.bounds.rectangle.high.longitude}`
-    );
+  // async fetchWeather(){
+  //   console.log('Fetching weather data for bounds:', this.bounds);
+  // try {
+  //   const response = await fetch(
+  //     `${window.config.APIDOMAIN}/api/user/weather?` + 
+  //     `low_lat=${this.bounds.rectangle.low.latitude}&` +
+  //     `low_lon=${this.bounds.rectangle.low.longitude}&` +
+  //     `high_lat=${this.bounds.rectangle.high.latitude}&` +
+  //     `high_lon=${this.bounds.rectangle.high.longitude}`
+  //   );
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  //   if (!response.ok) {
+  //     throw new Error(`HTTP error! status: ${response.status}`);
+  //   }
+    
+  //   const weatherData= await response.json();
+  //   console.log('Weather data:', weatherData);
+  //   // Process weather data here
+  //   return weatherData;
+  // } catch (error) {
+  //   console.error('Failed to fetch weather data:', error);
+  // }
+  // }
+
+
+  async fetchWeather() {
+    console.log('Fetching weather data for bounds:', this.bounds);
+    try {
+      // Align bounds to 0.25 grid
+      // This is how it works:
+      // If value = 12.67:
+      // value * 4 = 12.67 * 4 = 50.68
+      // Math.floor(50.68) = 50
+      // 50 / 4 = 12.5
+      // For eg, 12.67 becomes 12.50, 12.24 becomes 12.00 and 12.88 becomes 12.75
+      const alignToGrid = (value) => Math.floor(value * 4) / 4;
+      
+      const alignedBounds = {
+        rectangle: {
+          low: {
+            latitude: alignToGrid(this.bounds.rectangle.low.latitude)- 0.25,
+            longitude: alignToGrid(this.bounds.rectangle.low.longitude) - 0.25
+          },
+          high: {
+            latitude: alignToGrid(this.bounds.rectangle.high.latitude) + 0.25,
+            longitude: alignToGrid(this.bounds.rectangle.high.longitude) + 0.25
+          }
+        }
+      };
+  
+      const response = await fetch(
+        `${window.config.APIDOMAIN}/api/user/weather?` + 
+        `low_lat=${alignedBounds.rectangle.low.latitude}&` +
+        `low_lon=${alignedBounds.rectangle.low.longitude}&` +
+        `high_lat=${alignedBounds.rectangle.high.latitude}&` +
+        `high_lon=${alignedBounds.rectangle.high.longitude}`
+      );
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const weatherData = await response.json();
+      console.log('Weather data:', weatherData);
+      return weatherData;
+    } catch (error) {
+      console.error('Failed to fetch weather data:', error);
+    }
+  }
+
+  async updateWeatherOverlay() {
+    const response = await fetch(`${window.config.APIDOMAIN}/api/user/getplacesprovider`);
+    const data = await response.json();
+    
+    // Only proceed for YELP and HERE providers
+    if (data.placesprovider !== 'YELP' && data.placesprovider !== 'HERE') {
+        return;
     }
     
-    const weatherData = await response.json();
-    console.log('Weather data:', weatherData);
-    // Process weather data here
+    // Wait for weather data to be available
+    if (!this.weatherData.points || !Array.isArray(this.weatherData.points)) {
+        return;
+    }
+
     
-  } catch (error) {
-    console.error('Failed to fetch weather data:', error);
+    
+    if (this.routingService) {
+      this.routingService.addWeatherOverlay(this.weatherData.points);
   }
-  }
+}
 
   fetchAllpointsOnRoute() {
     let routepointarrays = [];
@@ -338,6 +408,8 @@ class MapDisplay extends HTMLElement {
       this.updateBounds(mapVar.getBounds(), 'GOOGLE');
     }
     }
+
+    this.routingService = routingService;
   }
 
   async render() {
